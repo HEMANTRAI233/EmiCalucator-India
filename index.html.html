@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="google-site-verification" content="oSY5ugaS5vK_2ty-0EHIBGfEMW34BYC1cY3VC0pKk7U" />
+<title>Home Loan EMI Calculator with Prepayment</title>
+<meta name="description" content="Free home loan EMI calculator with part payment. See your monthly EMI, total interest, and how much interest and time you save by prepaying.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f7fa;--surface:#ffffff;--ink:#12263a;--muted:#5a6b7b;--line:#dbe3ea;
+  --principal:#12263a;--interest:#e07a1f;--save:#0f8b6d;--save-bg:#e3f4ee;--focus:#0f6fd1;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1823;--surface:#162434;--ink:#e8eef4;--muted:#9fb0c0;--line:#2a3b4d;
+    --principal:#7fb2e5;--interest:#f0953f;--save:#4cc9a4;--save-bg:#12332b;--focus:#6db3ff;color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1823;--surface:#162434;--ink:#e8eef4;--muted:#9fb0c0;--line:#2a3b4d;
+  --principal:#7fb2e5;--interest:#f0953f;--save:#4cc9a4;--save-bg:#12332b;--focus:#6db3ff;color-scheme:dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 "Source Sans 3",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:720px;margin:0 auto;padding:24px 18px 48px}
+h1,h2,.big{font-family:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif}
+h1{font-size:clamp(1.9rem,6vw,2.6rem);line-height:1.08;margin:8px 0 10px;font-weight:700;letter-spacing:-.02em}
+h2{font-size:1.3rem;margin:36px 0 10px;font-weight:700}
+.sub{color:var(--muted);margin:0 0 22px;max-width:56ch}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px}
+.field{margin-bottom:18px}
+.field:last-child{margin-bottom:0}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:6px}
+label{font-weight:600}
+.num{width:140px;text-align:right;font:600 1rem "Source Sans 3",system-ui,sans-serif;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+input[type=range]{width:100%;accent-color:var(--principal);height:28px;margin:0}
+.num:focus-visible,input[type=range]:focus-visible,summary:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.hint{color:var(--muted);font-size:.92rem;margin:2px 0 0}
+.result{margin-top:18px}
+.big{font-size:clamp(2.4rem,11vw,3.6rem);font-weight:700;line-height:1;letter-spacing:-.03em;margin:4px 0 2px}
+.lbl{color:var(--muted);font-size:.95rem}
+.split{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-top:18px}
+.donut{width:150px;height:150px;flex:none}
+.legend{flex:1;min-width:200px;display:grid;gap:12px}
+.legend div{display:flex;align-items:flex-start;gap:10px}
+.dot{width:12px;height:12px;border-radius:3px;margin-top:6px;flex:none}
+.legend b{display:block;font-size:1.15rem}
+.save{background:var(--save-bg);border-radius:12px;padding:16px;margin-top:18px}
+.save h2{margin:0 0 6px;font-size:1.1rem;color:var(--save)}
+.save .figs{display:flex;gap:24px;flex-wrap:wrap}
+.save b{font:700 1.5rem "Bricolage Grotesque",system-ui,sans-serif;display:block}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:460px;font-variant-numeric:tabular-nums}
+th,td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-weight:600;color:var(--muted);font-size:.92rem}
+tr:last-child td{border-bottom:0}
+details{border-bottom:1px solid var(--line);padding:12px 0}
+summary{cursor:pointer;font-weight:600}
+details p{margin:8px 0 0;color:var(--muted)}
+.note{color:var(--muted);font-size:.88rem;margin-top:32px}
+.theme{float:right;background:none;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:6px 10px;font:inherit;font-size:.9rem;cursor:pointer}
+</style>
+</head>
+<body>
+<main>
+  <button class="theme" id="theme" type="button" aria-label="Switch light or dark theme">Theme</button>
+  <h1>Home loan EMI calculator with prepayment</h1>
+  <p class="sub">Enter your loan details to see your monthly EMI, and how much interest and time you save by paying extra every month.</p>
+
+  <div class="panel">
+    <div class="field">
+      <div class="row"><label for="p">Loan amount (₹)</label><input class="num" id="p" type="number" inputmode="numeric" value="5000000" min="10000" step="10000"></div>
+      <input type="range" id="p_r" min="100000" max="20000000" step="50000" aria-label="Loan amount slider">
+    </div>
+    <div class="field">
+      <div class="row"><label for="r">Interest rate (% per year)</label><input class="num" id="r" type="number" inputmode="decimal" value="8.5" min="0" max="30" step="0.05"></div>
+      <input type="range" id="r_r" min="5" max="15" step="0.05" aria-label="Interest rate slider">
+    </div>
+    <div class="field">
+      <div class="row"><label for="y">Loan tenure (years)</label><input class="num" id="y" type="number" inputmode="numeric" value="20" min="1" max="40" step="1"></div>
+      <input type="range" id="y_r" min="1" max="30" step="1" aria-label="Tenure slider">
+    </div>
+    <div class="field">
+      <div class="row"><label for="x">Extra payment every month (₹)</label><input class="num" id="x" type="number" inputmode="numeric" value="5000" min="0" step="500"></div>
+      <input type="range" id="x_r" min="0" max="100000" step="500" aria-label="Extra payment slider">
+      <p class="hint">Set to 0 to see the plain EMI without prepayment.</p>
+    </div>
+  </div>
+
+  <div class="panel result" aria-live="polite">
+    <div class="lbl">Your monthly EMI</div>
+    <div class="big" id="emi">–</div>
+    <div class="split">
+      <svg class="donut" viewBox="0 0 36 36" role="img" aria-label="Share of principal and interest in total payment">
+        <circle cx="18" cy="18" r="15.9155" fill="none" stroke="var(--interest)" stroke-width="5"/>
+        <circle id="arc" cx="18" cy="18" r="15.9155" fill="none" stroke="var(--principal)" stroke-width="5" stroke-dasharray="50 50" transform="rotate(-90 18 18)"/>
+      </svg>
+      <div class="legend">
+        <div><span class="dot" style="background:var(--principal)"></span><span>Principal<b id="tp">–</b></span></div>
+        <div><span class="dot" style="background:var(--interest)"></span><span>Total interest<b id="ti">–</b></span></div>
+        <div><span class="dot" style="background:var(--line)"></span><span>Total payment<b id="tt">–</b></span></div>
+      </div>
+    </div>
+    <div class="save" id="save"></div>
+  </div>
+
+  <h2>Year-wise payment schedule</h2>
+  <p class="sub" id="tnote"></p>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Year</th><th>Principal paid</th><th>Interest paid</th><th>Balance left</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+
+  <h2>How the EMI is calculated</h2>
+  <p>EMI = P × r × (1 + r)<sup>n</sup> ÷ ((1 + r)<sup>n</sup> − 1), where P is the loan amount, r is the monthly interest rate (yearly rate ÷ 12 ÷ 100), and n is the number of monthly instalments. In the early years most of your EMI goes to interest, which is why extra payments made early save the most.</p>
+
+  <h2>Frequently asked questions</h2>
+  <details><summary>Does prepaying a home loan really save money?</summary><p>Yes. Every extra rupee reduces the outstanding principal straight away, so you pay less interest in every later month. The earlier you prepay, the bigger the saving.</p></details>
+  <details><summary>Should I reduce my EMI or my tenure when I prepay?</summary><p>Reducing the tenure usually saves more interest overall. This calculator keeps your EMI fixed and shortens the tenure, which is the common choice.</p></details>
+  <details><summary>Are there prepayment charges on home loans?</summary><p>For floating-rate home loans to individuals, banks in India generally cannot charge a prepayment penalty. Fixed-rate loans or loans taken in a business name may have charges, so check your loan agreement.</p></details>
+  <details><summary>Is this calculator exact?</summary><p>It is a close estimate. Banks may round EMIs differently, change the rate during the loan, or charge fees that are not included here.</p></details>
+
+  <p class="note">This calculator is for information only and is not financial advice. Check final figures with your bank.</p>
+</main>
+
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id)};
+  var fmt=function(n){return '₹'+Math.round(n).toLocaleString('en-IN')};
+
+  function sched(P,rate,years,extra){
+    var r=rate/1200,n=Math.round(years*12);
+    var emi=r===0?P/n:P*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1);
+    var bal=P,m=0,ti=0,yi=0,yp=0,rows=[];
+    while(bal>0.5&&m<n+600){
+      m++;
+      var i=bal*r,p=emi-i+extra;
+      if(p>bal)p=bal;
+      bal-=p;ti+=i;yi+=i;yp+=p;
+      if(m%12===0||bal<=0.5){rows.push({y:Math.ceil(m/12),p:yp,i:yi,b:Math.max(bal,0)});yi=0;yp=0}
+    }
+    return {emi:emi,months:m,ti:ti,rows:rows};
+  }
+  function span(mo){
+    var y=Math.floor(mo/12),m=mo%12,out=[];
+    if(y)out.push(y+(y===1?' year':' years'));
+    if(m)out.push(m+(m===1?' month':' months'));
+    return out.join(' ')||'0 months';
+  }
+  function update(){
+    var P=+$('p').value,rate=+$('r').value,y=+$('y').value,x=Math.max(+$('x').value||0,0);
+    if(!(P>0)||!(y>0)||rate<0||isNaN(rate)){$('emi').textContent='–';return}
+    var base=sched(P,rate,y,0),plan=sched(P,rate,y,x);
+    $('emi').textContent=fmt(base.emi);
+    $('tp').textContent=fmt(P);
+    $('ti').textContent=fmt(base.ti);
+    $('tt').textContent=fmt(P+base.ti);
+    $('arc').setAttribute('stroke-dasharray',(P/(P+base.ti)*100).toFixed(2)+' '+(100-P/(P+base.ti)*100).toFixed(2));
+    var s=$('save');
+    if(x>0){
+      s.innerHTML='<h2>With ₹'+x.toLocaleString('en-IN')+' extra every month</h2><div class="figs"><div><b>'+fmt(base.ti-plan.ti)+'</b>interest saved</div><div><b>'+span(base.months-plan.months)+'</b>earlier loan closure</div></div><p class="hint">New tenure: '+span(plan.months)+' instead of '+span(base.months)+'.</p>';
+      $('tnote').textContent='Schedule shown with your extra monthly payment.';
+    }else{
+      s.innerHTML='<h2>See what prepaying can save</h2><p class="hint" style="margin:0">Add an extra monthly amount above to see interest saved and how much sooner you finish.</p>';
+      $('tnote').textContent='Schedule shown without prepayment.';
+    }
+    $('rows').innerHTML=plan.rows.map(function(o){return '<tr><td>'+o.y+'</td><td>'+fmt(o.p)+'</td><td>'+fmt(o.i)+'</td><td>'+fmt(o.b)+'</td></tr>'}).join('');
+  }
+  ['p','r','y','x'].forEach(function(k){
+    var n=$(k),s=$(k+'_r');
+    s.value=n.value;
+    n.addEventListener('input',function(){s.value=n.value;update()});
+    s.addEventListener('input',function(){n.value=s.value;update()});
+  });
+  $('theme').addEventListener('click',function(){
+    var d=document.documentElement,dark=getComputedStyle(d).colorScheme.indexOf('dark')>-1;
+    d.setAttribute('data-theme',dark?'light':'dark');
+  });
+  update();
+})();
+</script>
+</body>
+</html>
